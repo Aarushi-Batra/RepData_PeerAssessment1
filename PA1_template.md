@@ -4,13 +4,12 @@ author: "Aarushi Batra"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+
 
 ## Loading and Preparing the Dataset
 
-```{r}
+
+``` r
 activity_data <- read.csv("activity.csv", stringsAsFactors = FALSE)
 activity_data$date <- as.Date(activity_data$date)
 ```
@@ -19,7 +18,8 @@ activity_data$date <- as.Date(activity_data$date)
 
 ## Mean Total Number of Steps Taken Per Day
 
-```{r}
+
+``` r
 # Compute total steps per day (ignoring NA)
 daily_totals <- tapply(activity_data$steps,
                        activity_data$date,
@@ -29,7 +29,8 @@ daily_totals <- tapply(activity_data$steps,
 daily_totals <- as.numeric(daily_totals)
 ```
 
-```{r}
+
+``` r
 hist(daily_totals,
      col = "skyblue",
      border = "white",
@@ -38,22 +39,37 @@ hist(daily_totals,
      breaks = 15)
 ```
 
-```{r}
+![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3-1.png)
+
+
+``` r
 avg_steps <- mean(daily_totals)
 med_steps <- median(daily_totals)
 
 avg_steps
+```
+
+```
+## [1] 9354.23
+```
+
+``` r
 med_steps
 ```
 
-The average number of steps per day is `r avg_steps`.  
-The median number of steps per day is `r med_steps`.
+```
+## [1] 10395
+```
+
+The average number of steps per day is 9354.2295082.  
+The median number of steps per day is 1.0395 &times; 10<sup>4</sup>.
 
 ---
 
 ## Average Daily Activity Pattern
 
-```{r}
+
+``` r
 interval_means <- tapply(activity_data$steps,
                          activity_data$interval,
                          mean,
@@ -63,7 +79,8 @@ interval_values <- as.numeric(names(interval_means))
 interval_means <- as.numeric(interval_means)
 ```
 
-```{r}
+
+``` r
 plot(interval_values,
      interval_means,
      type = "l",
@@ -74,29 +91,42 @@ plot(interval_values,
      main = "Average Steps per Interval")
 ```
 
-```{r}
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6-1.png)
+
+
+``` r
 peak_interval <- interval_values[which.max(interval_means)]
 peak_interval
 ```
 
-The interval with the highest average steps is `r peak_interval`.
+```
+## [1] 835
+```
+
+The interval with the highest average steps is 835.
 
 ---
 
 ## Handling Missing Values
 
-```{r}
+
+``` r
 missing_count <- sum(is.na(activity_data$steps))
 missing_count
 ```
 
-There are `r missing_count` missing observations.
+```
+## [1] 2304
+```
+
+There are 2304 missing observations.
 
 ### Imputation Strategy
 
 Missing values are replaced with the mean for their corresponding 5-minute interval.
 
-```{r}
+
+``` r
 # Create copy
 filled_data <- activity_data
 
@@ -115,7 +145,8 @@ filled_data$steps[na_indices] <-
 
 ---
 
-```{r}
+
+``` r
 daily_totals_filled <- tapply(filled_data$steps,
                               filled_data$date,
                               sum)
@@ -123,7 +154,8 @@ daily_totals_filled <- tapply(filled_data$steps,
 daily_totals_filled <- as.numeric(daily_totals_filled)
 ```
 
-```{r}
+
+``` r
 hist(daily_totals_filled,
      col = "lightgreen",
      border = "white",
@@ -132,16 +164,30 @@ hist(daily_totals_filled,
      breaks = 15)
 ```
 
-```{r}
+![plot of chunk unnamed-chunk-11](figure/unnamed-chunk-11-1.png)
+
+
+``` r
 new_mean <- mean(daily_totals_filled)
 new_median <- median(daily_totals_filled)
 
 new_mean
+```
+
+```
+## [1] 10766.19
+```
+
+``` r
 new_median
 ```
 
-The mean after imputation is `r new_mean`.  
-The median after imputation is `r new_median`.
+```
+## [1] 10766.19
+```
+
+The mean after imputation is 1.0766189 &times; 10<sup>4</sup>.  
+The median after imputation is 1.0766189 &times; 10<sup>4</sup>.
 
 Imputing missing values slightly adjusts the distribution but does not significantly change the overall pattern.
 
@@ -149,7 +195,8 @@ Imputing missing values slightly adjusts the distribution but does not significa
 
 ## Weekday vs Weekend Comparison
 
-```{r}
+
+``` r
 filled_data$day_category <- ifelse(weekdays(filled_data$date) %in% 
                                      c("Saturday", "Sunday"),
                                    "Weekend",
@@ -158,7 +205,8 @@ filled_data$day_category <- ifelse(weekdays(filled_data$date) %in%
 filled_data$day_category <- factor(filled_data$day_category)
 ```
 
-```{r}
+
+``` r
 library(lattice)
 
 interval_day_avg <- aggregate(steps ~ interval + day_category,
@@ -174,3 +222,5 @@ xyplot(steps ~ interval | day_category,
        ylab = "Average Steps",
        main = "Activity Patterns: Weekday vs Weekend")
 ```
+
+![plot of chunk unnamed-chunk-14](figure/unnamed-chunk-14-1.png)
